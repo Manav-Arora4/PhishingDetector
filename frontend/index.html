@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phishing Detection Demo</title>
+  <link rel="stylesheet" href="/assets/styles.css">
+</head>
+<body>
+  <main class="shell">
+    <section class="hero">
+      <p class="eyebrow">Local Showcase</p>
+      <h1>Real-Time AI/ML Phishing Detection Demo</h1>
+      <p class="lede">
+        Pull a random held-out sample from the test set, run inference on it, and inspect whether
+        the model classified it correctly.
+      </p>
+      <div class="actions">
+        <button id="sample-button" class="button button-primary">Load Random Test Sample</button>
+        <button id="infer-button" class="button button-secondary" disabled>Run Inference</button>
+      </div>
+    </section>
+
+    <section class="grid">
+      <article class="panel">
+        <div class="panel-header">
+          <h2>Sample</h2>
+          <span id="sample-pill" class="pill">No sample loaded</span>
+        </div>
+        <dl class="meta">
+          <div>
+            <dt>Source file</dt>
+            <dd id="source-file">-</dd>
+          </div>
+          <div>
+            <dt>Expected label</dt>
+            <dd id="expected-label">-</dd>
+          </div>
+          <div>
+            <dt>Subject</dt>
+            <dd id="subject-line">-</dd>
+          </div>
+          <div>
+            <dt>URL count</dt>
+            <dd id="url-count">0</dd>
+          </div>
+        </dl>
+        <pre id="sample-text" class="sample-text">Load a random sample to inspect its contents.</pre>
+      </article>
+
+      <article class="panel">
+        <div class="panel-header">
+          <h2>Inference</h2>
+          <span id="result-pill" class="pill pill-neutral">Waiting</span>
+        </div>
+        <div class="score-wrap">
+          <div class="score-ring">
+            <span id="probability-value">0%</span>
+          </div>
+          <div class="score-copy">
+            <p class="score-label">Phishing probability</p>
+            <p id="decision-line" class="decision-line">Run inference to see the model decision.</p>
+          </div>
+        </div>
+        <dl class="meta">
+          <div>
+            <dt>Predicted label</dt>
+            <dd id="predicted-label">-</dd>
+          </div>
+          <div>
+            <dt>Correct?</dt>
+            <dd id="correct-flag">-</dd>
+          </div>
+          <div>
+            <dt>Model backend</dt>
+            <dd id="backend-name">-</dd>
+          </div>
+          <div>
+            <dt>URL risk</dt>
+            <dd id="url-risk">-</dd>
+          </div>
+        </dl>
+        <div class="keywords-block">
+          <h3>Explanation keywords</h3>
+          <div id="keyword-list" class="keyword-list">
+            <span class="keyword muted">No inference yet</span>
+          </div>
+        </div>
+      </article>
+    </section>
+
+    <p id="status-line" class="status-line">Ready.</p>
+  </main>
+  <script src="/assets/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+app/models/phishing_detector.pt
+app/models/base_training_metrics.json
+app/models/retraining_metrics.json
+app/models/phishing_runtime.db
+app/models/demo_test_samples.jsonl
+
+dataset/*.csv
+dataset/
+*.csv
