@@ -89,6 +89,41 @@
       </article>
     </section>
 
+    <section class="panel metrics-panel">
+      <div class="panel-header">
+        <h2>Model Metrics</h2>
+        <span id="metrics-pill" class="pill pill-neutral">Loading</span>
+      </div>
+      <div class="meta metrics-meta">
+        <div>
+          <dt>Validation F1</dt>
+          <dd id="validation-f1">-</dd>
+        </div>
+        <div>
+          <dt>Test F1</dt>
+          <dd id="test-f1">-</dd>
+        </div>
+        <div>
+          <dt>Validation FP/FN</dt>
+          <dd id="validation-errors">-</dd>
+        </div>
+        <div>
+          <dt>Test FP/FN</dt>
+          <dd id="test-errors">-</dd>
+        </div>
+      </div>
+      <div class="error-columns">
+        <div>
+          <h3>Validation False Positives</h3>
+          <ul id="validation-fp-list" class="error-list"></ul>
+        </div>
+        <div>
+          <h3>Test False Negatives</h3>
+          <ul id="test-fn-list" class="error-list"></ul>
+        </div>
+      </div>
+    </section>
+
     <p id="status-line" class="status-line">Ready.</p>
   </main>
   <script src="/assets/app.js"></script>

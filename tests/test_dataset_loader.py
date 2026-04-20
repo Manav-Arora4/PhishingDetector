@@ -32,3 +32,10 @@ def test_labels_generated_correctly():
     dataset = load_unified_dataset(DATASET_DIR, max_rows_per_file=5)
     labels = set(dataset.labels)
     assert labels == {0, 1}
+
+
+def test_records_include_leakage_control_fields():
+    dataset = load_unified_dataset(DATASET_DIR, max_rows_per_file=2)
+    record = dataset.records[0]
+    assert record.fingerprint
+    assert record.group_id

@@ -18,6 +18,7 @@ def create_test_settings(tmp_path: Path) -> Settings:
         dataset_dir=DATASET_DIR,
         models_dir=models_dir,
         synthetic_dir=synthetic_dir,
+        cache_dir=tmp_path / "cache",
         model_artifact_path=models_dir / "phishing_detector.pt",
         base_metrics_path=models_dir / "base_training_metrics.json",
         retraining_metrics_path=models_dir / "retraining_metrics.json",

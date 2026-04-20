@@ -12,6 +12,7 @@ APP_DIR = PROJECT_ROOT / "app"
 DATASET_DIR = PROJECT_ROOT / "dataset"
 MODELS_DIR = APP_DIR / "models"
 SYNTHETIC_DIR = APP_DIR / "ml" / "synthetic" / "generated_data"
+CACHE_DIR = APP_DIR / "cache"
 
 
 @dataclass(slots=True)
@@ -22,6 +23,7 @@ class Settings:
     dataset_dir: Path = DATASET_DIR
     models_dir: Path = MODELS_DIR
     synthetic_dir: Path = SYNTHETIC_DIR
+    cache_dir: Path = CACHE_DIR
     model_artifact_path: Path = MODELS_DIR / "phishing_detector.pt"
     base_metrics_path: Path = MODELS_DIR / "base_training_metrics.json"
     retraining_metrics_path: Path = MODELS_DIR / "retraining_metrics.json"
@@ -45,4 +47,5 @@ def ensure_runtime_dirs(settings: Settings | None = None) -> Settings:
     effective.dataset_dir.mkdir(parents=True, exist_ok=True)
     effective.models_dir.mkdir(parents=True, exist_ok=True)
     effective.synthetic_dir.mkdir(parents=True, exist_ok=True)
+    effective.cache_dir.mkdir(parents=True, exist_ok=True)
     return effective

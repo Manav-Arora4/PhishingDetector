@@ -13,6 +13,14 @@ Production-style Python project for phishing detection across message text, URLs
 - URL and HTML structural risk analysis
 - Pytest suite covering dataset loading, training, retraining, inference, API behavior, and full-pipeline blocking
 
+## Dataset Source
+
+The project loads datasets only from the local [`dataset/`](./dataset) directory at runtime.
+
+Reference source for the phishing email corpus:
+
+- [Kaggle: Phishing Email Dataset](https://www.kaggle.com/datasets/naserabdullahalam/phishing-email-dataset/data)
+
 ## Project Structure
 
 ```text
@@ -185,6 +193,21 @@ Base training:
 python train_base_model.py
 ```
 
+Useful training options:
+
+```bash
+python train_base_model.py --max-rows-per-file 1000 --backend token_naive_bayes
+python train_base_model.py --max-rows-per-file 1000 --backend token_naive_bayes --rebuild-cache
+python train_base_model.py --max-rows-per-file 1000 --backend token_naive_bayes --no-cache
+```
+
+The training script now supports:
+
+- preprocessing cache reuse for normalized dataset artifacts
+- file-by-file preprocessing progress logs
+- cache rebuild control for fresh preprocessing runs
+- resume-style repeated runs that skip expensive CSV normalization when the cache is valid
+
 Incremental retraining:
 
 ```bash
@@ -225,6 +248,146 @@ The demo site will:
 - display whether the model was correct
 - show phishing probability, explanation keywords, backend name, and URL risk when a URL exists
 
+## Browser Extension Demo
+
+A local browser extension demo is included under [`browser_extension`](./browser_extension).
+
+It can inspect the active browser tab and send:
+
+- the current page URL
+- page text
+- page HTML snapshot
+
+to the local phishing detector server for analysis.
+
+Setup:
+
+```bash
+python demo_server.py
+```
+
+Then in Chrome or Edge:
+
+1. Open the extensions page
+2. Enable Developer Mode
+3. Choose `Load unpacked`
+4. Select the [`browser_extension`](./browser_extension) folder
+
+The extension popup will then analyze the active tab against your local phishing detection stack.
+
+### Email Mode
+
+The extension also supports an email-focused mode for browser-based webmail views.
+
+When the active tab appears to be:
+
+- Gmail
+- Outlook Web
+
+the popup will try to extract:
+
+- sender
+- subject
+- visible message body
+- embedded links inside the email
+
+It then sends the email content through the local phishing detector and shows:
+
+- phishing decision
+- final risk score
+- NLP risk
+- maximum embedded-link URL risk
+- structural risk as `N/A` because the surrounding Gmail/Outlook shell is not treated as the target phishing page
+- explanation keywords
+- up to a few analyzed links extracted from the email
+
+Email mode uses a separate endpoint:
+
+- `POST /api/analyze/email`
+
+and applies email-specific logic instead of the generic webpage scoring rule. That email-specific path:
+
+- analyzes the sender, subject, and visible message body
+- scores embedded links separately
+- avoids using Gmail or Outlook page chrome as structural phishing evidence
+- uses mailbox context such as Gmail spam-folder location when available
+
+This helps reduce false positives on legitimate webmail pages and helps catch suspicious messages even when the visible message links are partially hidden by the webmail client.
+
+### Extension Troubleshooting
+
+If the popup shows an outdated result or a JSON parsing error such as `Unexpected token '<'`, the most common cause is a stale local server process or stale unpacked extension bundle.
+
+Refresh both sides:
+
+1. Stop the local server with `Ctrl + C`
+2. Restart it with `python demo_server.py`
+3. Open `chrome://extensions` or `edge://extensions`
+4. Click `Reload` for the unpacked extension
+5. Reopen the popup and run the analysis again
+
+This is especially important after changes to:
+
+- `demo_server.py`
+- `browser_extension/popup.js`
+
+## Safe URL Testing
+
+You do not need to visit a live phishing site to test the URL analysis engine.
+
+Start the local server:
+
+```bash
+python demo_server.py
+```
+
+Then test a URL safely through the local API:
+
+```bash
+python -c "import requests; print(requests.post('http://127.0.0.1:8080/api/analyze/url', json={'url':'http://paypaI-secure-login.com/update'}).json())"
+```
+
+You can also test the URL engine directly without starting the server:
+
+```bash
+python -c "import asyncio; from app.security.url_analyzer import URLAnalysisEngine; print(asyncio.run(URLAnalysisEngine().analyze('http://paypaI-secure-login.com/update')).as_dict())"
+```
+
+Safe example URLs:
+
+- `http://paypaI-secure-login.com/update`
+- `http://login.account.verify.micros0ft-support.top/auth`
+- `http://secure.portal.g00gle.work/reset?continue=ZXZlbnQ9dmVyaWZ5`
+- `https://example.com/about`
+
+Expected outcome:
+
+- phishing-style URLs should return higher risk scores
+- normal URLs such as `https://example.com/about` should return low risk scores
+
+## Safe Email Testing
+
+You do not need to open a live phishing campaign to test email detection.
+
+Safer ways to test email mode:
+
+- open a message in Gmail or Outlook Web and let the extension analyze the visible message body
+- use known spam-folder examples in a test mailbox
+- send controlled synthetic phishing samples to a disposable inbox
+- call the local email endpoint directly with sample sender, subject, body, and links
+
+Example direct email test:
+
+```bash
+python -c "import requests; print(requests.post('http://127.0.0.1:8080/api/analyze/email', json={'sender':'alerts@example-security.com','subject':'Verify your account now','body':'Your account has been suspended. Click below to verify immediately.','links':['http://paypaI-secure-login.com/update'],'mailbox_hint':'#spam/test'}).json())"
+```
+
+Expected behavior:
+
+- suspicious sender + urgent credential language + risky links should trend toward `BLOCK`
+- legitimate newsletters or product emails with safe links should usually trend toward `ALLOW`
+- email mode may still assign a moderate score to marketing-style language, but the decision is based on the email-specific heuristics rather than webpage structure
+
 ## Development Setup
 
 Install dependencies:
@@ -244,4 +407,4 @@ pip install -e .[dev]
 
 ## Notes About This Offline Sandbox
 
-The current sandbox does not include FastAPI, PyTorch, Transformers, BeautifulSoup, httpx, pandas, or pytest. To keep the project runnable and testable here, the codebase includes offline-safe fallbacks while still exposing the intended production interfaces. In a full environment, installing the dependencies from `pyproject.toml` enables the transformer and FastAPI paths.
+The current sandbox may not include the full runtime stack used by the project, including FastAPI, PyTorch, Transformers, or browser/runtime helpers. To keep the project runnable and testable here, the codebase includes offline-safe fallbacks while still exposing the intended production interfaces. In a full environment, installing the dependencies from `pyproject.toml` enables the transformer and FastAPI paths.

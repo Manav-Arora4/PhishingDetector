@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Phishing Detector</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <main class="panel">
+    <p class="eyebrow">Local Extension</p>
+    <h1>Phishing Detector</h1>
+    <p class="copy">Analyze the active tab using your local phishing detection server.</p>
+    <button id="analyze-button" class="button">Analyze This Tab</button>
+    <p id="status-line" class="status-line">Ready.</p>
+
+    <section class="card">
+      <h2>Current Tab</h2>
+      <p id="tab-url" class="url-text">No tab analyzed yet.</p>
+    </section>
+
+    <section class="card">
+      <div class="inline-head">
+        <h2>Mode</h2>
+        <span id="mode-pill" class="pill neutral">Generic Page</span>
+      </div>
+      <dl class="meta">
+        <div>
+          <dt>Sender</dt>
+          <dd id="email-sender">-</dd>
+        </div>
+        <div>
+          <dt>Subject</dt>
+          <dd id="email-subject">-</dd>
+        </div>
+        <div>
+          <dt>Embedded Links</dt>
+          <dd id="email-links">0</dd>
+        </div>
+      </dl>
+    </section>
+
+    <section class="card">
+      <div class="inline-head">
+        <h2>Decision</h2>
+        <span id="decision-pill" class="pill neutral">Waiting</span>
+      </div>
+      <p id="score-line" class="score-line">No analysis yet.</p>
+      <dl class="metrics">
+        <div>
+          <dt>URL Risk</dt>
+          <dd id="url-score">-</dd>
+        </div>
+        <div>
+          <dt>Structural Risk</dt>
+          <dd id="structural-score">-</dd>
+        </div>
+        <div>
+          <dt>NLP Score</dt>
+          <dd id="nlp-score">-</dd>
+        </div>
+      </dl>
+    </section>
+
+    <section class="card">
+      <h2>Explanation Keywords</h2>
+      <div id="keywords" class="keywords">
+        <span class="tag muted">Run analysis to inspect features</span>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Email Links</h2>
+      <ul id="email-link-list" class="link-list">
+        <li>No email link analysis yet.</li>
+      </ul>
+    </section>
+  </main>
+  <script src="popup.js"></script>
+</body>
+</html>

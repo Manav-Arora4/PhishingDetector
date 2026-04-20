@@ -3,6 +3,7 @@ __pycache__/
 *.pyo
 *.pyd
 .pytest_cache/
+app/cache/
 
 app/models/phishing_detector.pt
 app/models/base_training_metrics.json

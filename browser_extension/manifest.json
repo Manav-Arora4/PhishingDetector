@@ -1,0 +1,12 @@
+{
+  "manifest_version": 3,
+  "name": "Phishing Detector Local Demo",
+  "version": "0.1.0",
+  "description": "Analyze the active tab with the local phishing detection project.",
+  "permissions": ["activeTab", "scripting", "tabs"],
+  "host_permissions": ["http://127.0.0.1:8080/*", "http://localhost:8080/*"],
+  "action": {
+    "default_title": "Phishing Detector",
+    "default_popup": "popup.html"
+  }
+}

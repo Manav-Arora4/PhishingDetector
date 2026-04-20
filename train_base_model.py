@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import json
 
 from app.ml.training.train_base_model import train_base_model
 
@@ -41,17 +42,48 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="Force a specific backend, such as token_naive_bayes or transformer.",
     )
+    parser.add_argument(
+        "--no-cache",
+        action="store_true",
+        help="Disable preprocessing cache reuse.",
+    )
+    parser.add_argument(
+        "--rebuild-cache",
+        action="store_true",
+        help="Rebuild the preprocessing cache even if one already exists.",
+    )
+    parser.add_argument(
+        "--quiet",
+        action="store_true",
+        help="Reduce training progress logging.",
+    )
+    parser.add_argument(
+        "--workers",
+        type=int,
+        default=1,
+        help="Number of worker processes to use during dataset preprocessing.",
+    )
+    parser.add_argument(
+        "--eval-batch-size",
+        type=int,
+        default=64,
+        help="Number of samples to score per validation/test batch.",
+    )
     return parser
 
 
 if __name__ == "__main__":
     args = build_parser().parse_args()
-    print(
-        train_base_model(
+    result = train_base_model(
             max_rows_per_file=args.max_rows_per_file,
             train_ratio=args.train_ratio,
             validation_ratio=args.validation_ratio,
             test_ratio=args.test_ratio,
             force_backend=args.backend,
+            use_preprocessing_cache=not args.no_cache,
+            rebuild_preprocessing_cache=args.rebuild_cache,
+            log_progress=not args.quiet,
+            workers=args.workers,
+            evaluation_batch_size=args.eval_batch_size,
         )
-    )
+    print(json.dumps(result, indent=2, ensure_ascii=True))

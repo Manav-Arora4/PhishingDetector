@@ -16,11 +16,33 @@ const urlRisk = document.querySelector("#url-risk");
 const keywordList = document.querySelector("#keyword-list");
 const statusLine = document.querySelector("#status-line");
 const scoreRing = document.querySelector(".score-ring");
+const metricsPill = document.querySelector("#metrics-pill");
+const validationF1 = document.querySelector("#validation-f1");
+const testF1 = document.querySelector("#test-f1");
+const validationErrors = document.querySelector("#validation-errors");
+const testErrors = document.querySelector("#test-errors");
+const validationFpList = document.querySelector("#validation-fp-list");
+const testFnList = document.querySelector("#test-fn-list");
 
 let currentSample = null;
 
 function setStatus(message) {
   statusLine.textContent = message;
+}
+
+function renderErrorList(target, items, emptyMessage) {
+  target.innerHTML = "";
+  if (!items || items.length === 0) {
+    const item = document.createElement("li");
+    item.textContent = emptyMessage;
+    target.appendChild(item);
+    return;
+  }
+  items.slice(0, 5).forEach((entry) => {
+    const item = document.createElement("li");
+    item.innerHTML = `<strong>${entry.source_file}</strong>${entry.subject}<br>p=${entry.probability} | expected ${entry.expected_label}, predicted ${entry.predicted_label}`;
+    target.appendChild(item);
+  });
 }
 
 function renderKeywords(keywords) {
@@ -124,6 +146,35 @@ async function runInference() {
   );
 }
 
+async function loadMetrics() {
+  const response = await fetch("/api/demo/metrics");
+  const payload = await response.json();
+  if (!response.ok) {
+    metricsPill.textContent = "Unavailable";
+    validationF1.textContent = "-";
+    testF1.textContent = "-";
+    return;
+  }
+  metricsPill.className = "pill pill-good";
+  metricsPill.textContent = payload.overfitting_checks?.possible_overfitting ? "Review Needed" : "Healthy";
+  validationF1.textContent = payload.validation_metrics?.f1 ?? "-";
+  testF1.textContent = payload.test_metrics?.f1 ?? "-";
+  const validationMatrix = payload.validation_metrics?.confusion_matrix || {};
+  const testMatrix = payload.test_metrics?.confusion_matrix || {};
+  validationErrors.textContent = `FP ${validationMatrix.fp ?? 0} / FN ${validationMatrix.fn ?? 0}`;
+  testErrors.textContent = `FP ${testMatrix.fp ?? 0} / FN ${testMatrix.fn ?? 0}`;
+  renderErrorList(
+    validationFpList,
+    payload.validation_error_report?.false_positive_examples || [],
+    "No validation false positives recorded."
+  );
+  renderErrorList(
+    testFnList,
+    payload.test_error_report?.false_negative_examples || [],
+    "No test false negatives recorded."
+  );
+}
+
 sampleButton.addEventListener("click", () => {
   loadRandomSample().catch((error) => {
     setStatus(error.message);
@@ -134,4 +185,9 @@ inferButton.addEventListener("click", () => {
   runInference().catch((error) => {
     setStatus(error.message);
   });
+});
+
+loadMetrics().catch((error) => {
+  metricsPill.textContent = "Unavailable";
+  setStatus(error.message);
 });

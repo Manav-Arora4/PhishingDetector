@@ -15,7 +15,12 @@ class ScoringService:
         elif url_score >= 0.85:
             weighted = max(weighted, 0.82)
         final_score = round(min(weighted, 1.0), 4)
-        decision = "BLOCK" if final_score >= 0.8 else "ALLOW"
+        should_block = (
+            final_score >= 0.55
+            or (nlp_score >= 0.95 and structural_score >= 0.3)
+            or (url_score >= 0.6 and structural_score >= 0.35)
+        )
+        decision = "BLOCK" if should_block else "ALLOW"
         return {
             "final_risk_score": final_score,
             "decision": decision,
@@ -23,5 +28,6 @@ class ScoringService:
                 "nlp_score": round(nlp_score, 4),
                 "url_score": round(url_score, 4),
                 "structural_score": round(structural_score, 4),
+                "decision_threshold": 0.55,
             },
         }
